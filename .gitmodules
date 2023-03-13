@@ -11,12 +11,12 @@
 [submodule "extern/simulte"]
 	path = extern/simulte
 	url = https://github.com/riebl/simulte.git
-[submodule "extern/vanetza"]
-	path = extern/vanetza
-	url = https://github.com/riebl/vanetza.git
 [submodule "extern/veins"]
 	path = extern/veins
 	url = https://github.com/sommer/veins.git
 [submodule "extern/sim0mqpp"]
 	path = extern/sim0mqpp
 	url = https://github.com/riebl/sim0mqpp.git
+[submodule "extern/vanetza"]
+	path = extern/vanetza
+	url = git@github.com:XDogas/vanetza.git
