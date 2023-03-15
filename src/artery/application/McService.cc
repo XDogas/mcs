@@ -15,6 +15,9 @@
 #include <vanetza/facilities/cam_functions.hpp>
 #include <chrono>
 
+#include<iostream>
+using namespace std;
+
 namespace artery
 {
 
@@ -165,6 +168,9 @@ void McService::sendCam(const SimTime& T_now)
 		addLowFrequencyContainer(cam, par("pathHistoryLength"));
 		mLastLowCamTimestamp = T_now;
 	}
+    // 
+	cout << endl; // CAM end
+	// 
 
 	using namespace vanetza;
 	btp::DataRequestB request;
@@ -208,6 +214,9 @@ vanetza::asn1::Cam createCooperativeAwarenessMessage(const VehicleDataProvider& 
 	header.protocolVersion = 2;
 	header.messageID = ItsPduHeader__messageID_cam;
 	header.stationID = vdp.station_id();
+	// if (header.stationID==157) { // 3º vehicle
+		// addSpecialVehicleContainer()
+	// }
 
 	CoopAwareness_t& cam = (*message).cam;
 	cam.generationDeltaTime = genDeltaTime * GenerationDeltaTime_oneMilliSec;
@@ -256,10 +265,45 @@ vanetza::asn1::Cam createCooperativeAwarenessMessage(const VehicleDataProvider& 
 			VehicleLengthConfidenceIndication_noTrailerPresent;
 	bvc.vehicleWidth = VehicleWidth_unavailable;
 
+    // bvc.lanePosition = LanePosition_offTheRoad; // it changes the field once and gives an error because of SUMO, since the correct value sould be LanePosition_innerHardShoulder (0)
+
 	std::string error;
 	if (!message.validate(error)) {
 		throw cRuntimeError("Invalid High Frequency CAM: %s", error.c_str());
 	}
+
+    //
+	cout << "CAM" << endl;
+	cout << "header.protocolVersion: " << header.protocolVersion << endl;
+	cout << "header.messageID: " << header.messageID << endl;
+	cout << "header.stationID: " << header.stationID << endl;
+	cout << "cam.generationDeltaTime: " << cam.generationDeltaTime << endl;
+	cout << "basic.stationType: " << basic.stationType << endl;
+	cout << "basic.referencePosition.altitude.altitudeValue: " << basic.referencePosition.altitude.altitudeValue << endl;
+	cout << "basic.referencePosition.altitude.altitudeConfidence: " << basic.referencePosition.altitude.altitudeConfidence << endl;
+	cout << "basic.referencePosition.longitude: " << basic.referencePosition.longitude << endl;
+	cout << "basic.referencePosition.latitude: " << basic.referencePosition.latitude << endl;
+	cout << "basic.referencePosition.positionConfidenceEllipse.semiMajorOrientation: " << basic.referencePosition.positionConfidenceEllipse.semiMajorOrientation << endl;
+	cout << "basic.referencePosition.positionConfidenceEllipse.semiMajorConfidence: " << basic.referencePosition.positionConfidenceEllipse.semiMajorConfidence << endl;
+	cout << "basic.referencePosition.positionConfidenceEllipse.semiMinorConfidence: " << basic.referencePosition.positionConfidenceEllipse.semiMinorConfidence << endl;
+	cout << "hfc.present: " << hfc.present << endl;
+	cout << "bvc.heading.headingValue: " << bvc.heading.headingValue << endl;
+	cout << "bvc.heading.headingConfidence: " << bvc.heading.headingConfidence << endl;
+	cout << "bvc.speed.speedValue: " << bvc.speed.speedValue << endl;
+	cout << "bvc.speed.speedConfidence: " << bvc.speed.speedConfidence << endl;
+	cout << "bvc.driveDirection: " << bvc.driveDirection << endl;
+	cout << "bvc.vehicleLength.vehicleLengthValue: " << bvc.vehicleLength.vehicleLengthValue << endl;
+	cout << "bvc.vehicleLength.vehicleLengthConfidenceIndication: " << bvc.vehicleLength.vehicleLengthConfidenceIndication << endl;
+	cout << "bvc.vehicleWidth: " << bvc.vehicleWidth << endl;
+	cout << "bvc.longitudinalAcceleration.longitudinalAccelerationValue: " << bvc.longitudinalAcceleration.longitudinalAccelerationValue << endl;
+	cout << "bvc.longitudinalAcceleration.longitudinalAccelerationConfidence: " << bvc.longitudinalAcceleration.longitudinalAccelerationConfidence << endl;
+	cout << "bvc.curvature.curvatureValue: " << bvc.curvature.curvatureValue << endl;
+	cout << "bvc.curvature.curvatureConfidence: " << bvc.curvature.curvatureConfidence << endl;
+	cout << "bvc.curvatureCalculationMode: " << bvc.curvatureCalculationMode << endl;
+	cout << "bvc.yawRate.yawRateValue: " << bvc.yawRate.yawRateValue << endl;
+	cout << "bvc.yawRate.yawRateConfidence: " << bvc.yawRate.yawRateConfidence << endl;
+	cout << "bvc.lanePosition: " << bvc.lanePosition << endl;
+	//
 
 	return message;
 }
@@ -295,6 +339,11 @@ void addLowFrequencyContainer(vanetza::asn1::Cam& message, unsigned pathHistoryL
 	if (!message.validate(error)) {
 		throw cRuntimeError("Invalid Low Frequency CAM: %s", error.c_str());
 	}
+
+    //
+	cout << "bvc.vehicleRole: " << bvc.vehicleRole << endl;
+	cout << "bvc.exteriorLights.size: " << bvc.exteriorLights.size << endl;
+	//
 }
 
 } // namespace artery
