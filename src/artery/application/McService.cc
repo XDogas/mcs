@@ -28,8 +28,8 @@ auto decidegree = vanetza::units::degree * boost::units::si::deci;
 auto degree_per_second = vanetza::units::degree / vanetza::units::si::second;
 auto centimeter_per_second = vanetza::units::si::meter_per_second * boost::units::si::centi;
 
-static const simsignal_t scSignalCamReceived = cComponent::registerSignal("CamReceived");
-static const simsignal_t scSignalCamSent = cComponent::registerSignal("CamSent");
+static const simsignal_t scSignalMcmReceived = cComponent::registerSignal("McmReceived");
+static const simsignal_t scSignalMcmSent = cComponent::registerSignal("McmSent");
 static const auto scLowFrequencyContainerInterval = std::chrono::milliseconds(500);
 
 template<typename T, typename U>
@@ -57,11 +57,11 @@ SpeedValue_t buildSpeedValue(const vanetza::units::Velocity& v)
 Define_Module(McService)
 
 McService::McService() :
-		mGenCamMin { 100, SIMTIME_MS },
-		mGenCamMax { 1000, SIMTIME_MS },
-		mGenCam(mGenCamMax),
-		mGenCamLowDynamicsCounter(0),
-		mGenCamLowDynamicsLimit(3)
+		mGenMcmMin { 100, SIMTIME_MS },
+		mGenMcmMax { 1000, SIMTIME_MS },
+		mGenMcm(mGenMcmMax),
+		mGenMcmLowDynamicsCounter(0),
+		mGenMcmLowDynamicsLimit(3)
 {
 }
 
@@ -74,15 +74,15 @@ void McService::initialize()
 	mLocalDynamicMap = &getFacilities().get_mutable<artery::LocalDynamicMap>();
 
 	// avoid unreasonable high elapsed time values for newly inserted vehicles
-	mLastCamTimestamp = simTime();
+	mLastMcmTimestamp = simTime();
 
-	// first generated CAM shall include the low frequency container
-	mLastLowCamTimestamp = mLastCamTimestamp - artery::simtime_cast(scLowFrequencyContainerInterval);
+	// // first generated CAM shall include the low frequency container
+	// mLastLowMcmTimestamp = mLastMcmTimestamp - artery::simtime_cast(scLowFrequencyContainerInterval);
 
 	// generation rate boundaries
-	mGenCamMin = par("minInterval");
-	mGenCamMax = par("maxInterval");
-	mGenCam = mGenCamMax;
+	mGenMcmMin = par("minInterval");
+	mGenMcmMax = par("maxInterval");
+	mGenMcm = mGenMcmMax;
 
 	// vehicle dynamics thresholds
 	mHeadingDelta = vanetza::units::Angle { par("headingDelta").doubleValue() * vanetza::units::degree };
@@ -107,10 +107,10 @@ void McService::indicate(const vanetza::btp::DataIndication& ind, std::unique_pt
 	Enter_Method("indicate");
 
 	Asn1PacketVisitor<vanetza::asn1::Cam> visitor;
-	const vanetza::asn1::Cam* cam = boost::apply_visitor(visitor, *packet);
-	if (cam && cam->validate()) {
+	const vanetza::asn1::Cam* mcm = boost::apply_visitor(visitor, *packet);
+	if (mcm && mcm->validate()) {
 		CaObject obj = visitor.shared_wrapper;
-		emit(scSignalCamReceived, &obj);
+		emit(scSignalMcmReceived, &obj);
 		mLocalDynamicMap->updateAwareness(obj);
 	}
 }
@@ -118,23 +118,23 @@ void McService::indicate(const vanetza::btp::DataIndication& ind, std::unique_pt
 void McService::checkTriggeringConditions(const SimTime& T_now)
 {
 	// provide variables named like in EN 302 637-2 V1.3.2 (section 6.1.3)
-	SimTime& T_GenCam = mGenCam;
-	const SimTime& T_GenCamMin = mGenCamMin;
-	const SimTime& T_GenCamMax = mGenCamMax;
-	const SimTime T_GenCamDcc = mDccRestriction ? genCamDcc() : T_GenCamMin;
-	const SimTime T_elapsed = T_now - mLastCamTimestamp;
+	SimTime& T_GenMcm = mGenMcm;
+	const SimTime& T_GenMcmMin = mGenMcmMin;
+	const SimTime& T_GenMcmMax = mGenMcmMax;
+	const SimTime T_GenMcmDcc = mDccRestriction ? genMcmDcc() : T_GenMcmMin;
+	const SimTime T_elapsed = T_now - mLastMcmTimestamp;
 
-	if (T_elapsed >= T_GenCamDcc) {
+	if (T_elapsed >= T_GenMcmDcc) {
 		if (mFixedRate) {
-			sendCam(T_now);
+			sendMcm(T_now);
 		} else if (checkHeadingDelta() || checkPositionDelta() || checkSpeedDelta()) {
-			sendCam(T_now);
-			T_GenCam = std::min(T_elapsed, T_GenCamMax); /*< if middleware update interval is too long */
-			mGenCamLowDynamicsCounter = 0;
-		} else if (T_elapsed >= T_GenCam) {
-			sendCam(T_now);
-			if (++mGenCamLowDynamicsCounter >= mGenCamLowDynamicsLimit) {
-				T_GenCam = T_GenCamMax;
+			sendMcm(T_now);
+			T_GenMcm = std::min(T_elapsed, T_GenMcmMax); /*< if middleware update interval is too long */
+			mGenMcmLowDynamicsCounter = 0;
+		} else if (T_elapsed >= T_GenMcm) {
+			sendMcm(T_now);
+			if (++mGenMcmLowDynamicsCounter >= mGenMcmLowDynamicsLimit) {
+				T_GenMcm = T_GenMcmMax;
 			}
 		}
 	}
@@ -142,34 +142,34 @@ void McService::checkTriggeringConditions(const SimTime& T_now)
 
 bool McService::checkHeadingDelta() const
 {
-	return !vanetza::facilities::similar_heading(mLastCamHeading, mVehicleDataProvider->heading(), mHeadingDelta);
+	return !vanetza::facilities::similar_heading(mLastMcmHeading, mVehicleDataProvider->heading(), mHeadingDelta);
 }
 
 bool McService::checkPositionDelta() const
 {
-	return (distance(mLastCamPosition, mVehicleDataProvider->position()) > mPositionDelta);
+	return (distance(mLastMcmPosition, mVehicleDataProvider->position()) > mPositionDelta);
 }
 
 bool McService::checkSpeedDelta() const
 {
-	return abs(mLastCamSpeed - mVehicleDataProvider->speed()) > mSpeedDelta;
+	return abs(mLastMcmSpeed - mVehicleDataProvider->speed()) > mSpeedDelta;
 }
 
-void McService::sendCam(const SimTime& T_now)
+void McService::sendMcm(const SimTime& T_now)
 {
 	uint16_t genDeltaTimeMod = countTaiMilliseconds(mTimer->getTimeFor(mVehicleDataProvider->updated()));
-	auto cam = createCooperativeAwarenessMessage(*mVehicleDataProvider, genDeltaTimeMod);
+	auto mcm = createManoeuvreCoordinationMessage(*mVehicleDataProvider, genDeltaTimeMod);
 
-	mLastCamPosition = mVehicleDataProvider->position();
-	mLastCamSpeed = mVehicleDataProvider->speed();
-	mLastCamHeading = mVehicleDataProvider->heading();
-	mLastCamTimestamp = T_now;
-	if (T_now - mLastLowCamTimestamp >= artery::simtime_cast(scLowFrequencyContainerInterval)) {
-		addLowFrequencyContainer(cam, par("pathHistoryLength"));
-		mLastLowCamTimestamp = T_now;
-	}
+	mLastMcmPosition = mVehicleDataProvider->position();
+	mLastMcmSpeed = mVehicleDataProvider->speed();
+	mLastMcmHeading = mVehicleDataProvider->heading();
+	mLastMcmTimestamp = T_now;
+	// if (T_now - mLastLowMcmTimestamp >= artery::simtime_cast(scLowFrequencyContainerInterval)) {
+	// 	addLowFrequencyContainer(mcm, par("pathHistoryLength"));
+	// 	mLastLowMcmTimestamp = T_now;
+	// }
     // 
-	cout << endl; // CAM end
+	cout << endl; // MCM print end
 	// 
 
 	using namespace vanetza;
@@ -181,8 +181,8 @@ void McService::sendCam(const SimTime& T_now)
 	request.gn.traffic_class.tc_id(static_cast<unsigned>(dcc::Profile::DP2));
 	request.gn.communication_profile = geonet::CommunicationProfile::ITS_G5;
 
-	CaObject obj(std::move(cam));
-	emit(scSignalCamSent, &obj);
+	CaObject obj(std::move(mcm));
+	emit(scSignalMcmSent, &obj);
 
 	using CamByteBuffer = convertible::byte_buffer_impl<asn1::Cam>;
 	std::unique_ptr<geonet::DownPacket> payload { new geonet::DownPacket() };
@@ -191,7 +191,7 @@ void McService::sendCam(const SimTime& T_now)
 	this->request(request, std::move(payload));
 }
 
-SimTime McService::genCamDcc()
+SimTime McService::genMcmDcc()
 {
 	// network interface may not be ready yet during initialization, so look it up at this later point
 	auto netifc = mNetworkInterfaceTable->select(mPrimaryChannel);
@@ -203,10 +203,10 @@ SimTime McService::genCamDcc()
 	static const vanetza::dcc::TransmissionLite ca_tx(vanetza::dcc::Profile::DP2, 0);
 	vanetza::Clock::duration interval = trc->interval(ca_tx);
 	SimTime dcc { std::chrono::duration_cast<std::chrono::milliseconds>(interval).count(), SIMTIME_MS };
-	return std::min(mGenCamMax, std::max(mGenCamMin, dcc));
+	return std::min(mGenMcmMax, std::max(mGenMcmMin, dcc));
 }
 
-vanetza::asn1::Cam createCooperativeAwarenessMessage(const VehicleDataProvider& vdp, uint16_t genDeltaTime)
+vanetza::asn1::Cam createManoeuvreCoordinationMessage(const VehicleDataProvider& vdp, uint16_t genDeltaTime)
 {
 	vanetza::asn1::Cam message;
 
@@ -218,10 +218,10 @@ vanetza::asn1::Cam createCooperativeAwarenessMessage(const VehicleDataProvider& 
 		// addSpecialVehicleContainer()
 	// }
 
-	CoopAwareness_t& cam = (*message).cam;
-	cam.generationDeltaTime = genDeltaTime * GenerationDeltaTime_oneMilliSec;
-	BasicContainer_t& basic = cam.camParameters.basicContainer;
-	HighFrequencyContainer_t& hfc = cam.camParameters.highFrequencyContainer;
+	CoopAwareness_t& mcm = (*message).cam;
+	mcm.generationDeltaTime = genDeltaTime * GenerationDeltaTime_oneMilliSec;
+	BasicContainer_t& basic = mcm.camParameters.basicContainer;
+	HighFrequencyContainer_t& hfc = mcm.camParameters.highFrequencyContainer;
 
 	basic.stationType = StationType_passengerCar;
 	basic.referencePosition.altitude.altitudeValue = AltitudeValue_unavailable;
@@ -273,11 +273,12 @@ vanetza::asn1::Cam createCooperativeAwarenessMessage(const VehicleDataProvider& 
 	}
 
     //
-	cout << "CAM" << endl;
+    // MCM = CAM without lowFrequencyContainer (commented)
+	cout << "MCM" << endl;
 	cout << "header.protocolVersion: " << header.protocolVersion << endl;
 	cout << "header.messageID: " << header.messageID << endl;
 	cout << "header.stationID: " << header.stationID << endl;
-	cout << "cam.generationDeltaTime: " << cam.generationDeltaTime << endl;
+	cout << "mcm.generationDeltaTime: " << mcm.generationDeltaTime << endl;
 	cout << "basic.stationType: " << basic.stationType << endl;
 	cout << "basic.referencePosition.altitude.altitudeValue: " << basic.referencePosition.altitude.altitudeValue << endl;
 	cout << "basic.referencePosition.altitude.altitudeConfidence: " << basic.referencePosition.altitude.altitudeConfidence << endl;
@@ -308,42 +309,42 @@ vanetza::asn1::Cam createCooperativeAwarenessMessage(const VehicleDataProvider& 
 	return message;
 }
 
-void addLowFrequencyContainer(vanetza::asn1::Cam& message, unsigned pathHistoryLength)
-{
-	if (pathHistoryLength > 40) {
-		EV_WARN << "path history can contain 40 elements at maximum";
-		pathHistoryLength = 40;
-	}
+// void addLowFrequencyContainer(vanetza::asn1::Cam& message, unsigned pathHistoryLength)
+// {
+// 	if (pathHistoryLength > 40) {
+// 		EV_WARN << "path history can contain 40 elements at maximum";
+// 		pathHistoryLength = 40;
+// 	}
 
-	LowFrequencyContainer_t*& lfc = message->cam.camParameters.lowFrequencyContainer;
-	lfc = vanetza::asn1::allocate<LowFrequencyContainer_t>();
-	lfc->present = LowFrequencyContainer_PR_basicVehicleContainerLowFrequency;
-	BasicVehicleContainerLowFrequency& bvc = lfc->choice.basicVehicleContainerLowFrequency;
-	bvc.vehicleRole = VehicleRole_default;
-	bvc.exteriorLights.buf = static_cast<uint8_t*>(vanetza::asn1::allocate(1));
-	assert(nullptr != bvc.exteriorLights.buf);
-	bvc.exteriorLights.size = 1;
-	bvc.exteriorLights.buf[0] |= 1 << (7 - ExteriorLights_daytimeRunningLightsOn);
+// 	LowFrequencyContainer_t*& lfc = message->cam.camParameters.lowFrequencyContainer;
+// 	lfc = vanetza::asn1::allocate<LowFrequencyContainer_t>();
+// 	lfc->present = LowFrequencyContainer_PR_basicVehicleContainerLowFrequency;
+// 	BasicVehicleContainerLowFrequency& bvc = lfc->choice.basicVehicleContainerLowFrequency;
+// 	bvc.vehicleRole = VehicleRole_default;
+// 	bvc.exteriorLights.buf = static_cast<uint8_t*>(vanetza::asn1::allocate(1));
+// 	assert(nullptr != bvc.exteriorLights.buf);
+// 	bvc.exteriorLights.size = 1;
+// 	bvc.exteriorLights.buf[0] |= 1 << (7 - ExteriorLights_daytimeRunningLightsOn);
 
-	for (unsigned i = 0; i < pathHistoryLength; ++i) {
-		PathPoint* pathPoint = vanetza::asn1::allocate<PathPoint>();
-		pathPoint->pathDeltaTime = vanetza::asn1::allocate<PathDeltaTime_t>();
-		*(pathPoint->pathDeltaTime) = (i + 1) * PathDeltaTime_tenMilliSecondsInPast * 10;
-		pathPoint->pathPosition.deltaLatitude = DeltaLatitude_unavailable;
-		pathPoint->pathPosition.deltaLongitude = DeltaLongitude_unavailable;
-		pathPoint->pathPosition.deltaAltitude = DeltaAltitude_unavailable;
-		ASN_SEQUENCE_ADD(&bvc.pathHistory, pathPoint);
-	}
+// 	for (unsigned i = 0; i < pathHistoryLength; ++i) {
+// 		PathPoint* pathPoint = vanetza::asn1::allocate<PathPoint>();
+// 		pathPoint->pathDeltaTime = vanetza::asn1::allocate<PathDeltaTime_t>();
+// 		*(pathPoint->pathDeltaTime) = (i + 1) * PathDeltaTime_tenMilliSecondsInPast * 10;
+// 		pathPoint->pathPosition.deltaLatitude = DeltaLatitude_unavailable;
+// 		pathPoint->pathPosition.deltaLongitude = DeltaLongitude_unavailable;
+// 		pathPoint->pathPosition.deltaAltitude = DeltaAltitude_unavailable;
+// 		ASN_SEQUENCE_ADD(&bvc.pathHistory, pathPoint);
+// 	}
 
-	std::string error;
-	if (!message.validate(error)) {
-		throw cRuntimeError("Invalid Low Frequency CAM: %s", error.c_str());
-	}
+// 	std::string error;
+// 	if (!message.validate(error)) {
+// 		throw cRuntimeError("Invalid Low Frequency CAM: %s", error.c_str());
+// 	}
 
-    //
-	cout << "bvc.vehicleRole: " << bvc.vehicleRole << endl;
-	cout << "bvc.exteriorLights.size: " << bvc.exteriorLights.size << endl;
-	//
-}
+//     //
+// 	cout << "bvc.vehicleRole: " << bvc.vehicleRole << endl;
+// 	cout << "bvc.exteriorLights.size: " << bvc.exteriorLights.size << endl;
+// 	//
+// }
 
 } // namespace artery

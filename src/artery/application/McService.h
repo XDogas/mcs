@@ -31,8 +31,8 @@ class McService : public ItsG5BaseService
 		bool checkHeadingDelta() const;
 		bool checkPositionDelta() const;
 		bool checkSpeedDelta() const;
-		void sendCam(const omnetpp::SimTime&);
-		omnetpp::SimTime genCamDcc();
+		void sendMcm(const omnetpp::SimTime&);
+		omnetpp::SimTime genMcmDcc();
 
 		ChannelNumber mPrimaryChannel = channel::CCH;
 		const NetworkInterfaceTable* mNetworkInterfaceTable = nullptr;
@@ -40,16 +40,16 @@ class McService : public ItsG5BaseService
 		const Timer* mTimer = nullptr;
 		LocalDynamicMap* mLocalDynamicMap = nullptr;
 
-		omnetpp::SimTime mGenCamMin;
-		omnetpp::SimTime mGenCamMax;
-		omnetpp::SimTime mGenCam;
-		unsigned mGenCamLowDynamicsCounter;
-		unsigned mGenCamLowDynamicsLimit;
-		Position mLastCamPosition;
-		vanetza::units::Velocity mLastCamSpeed;
-		vanetza::units::Angle mLastCamHeading;
-		omnetpp::SimTime mLastCamTimestamp;
-		omnetpp::SimTime mLastLowCamTimestamp;
+		omnetpp::SimTime mGenMcmMin;
+		omnetpp::SimTime mGenMcmMax;
+		omnetpp::SimTime mGenMcm;
+		unsigned mGenMcmLowDynamicsCounter;
+		unsigned mGenMcmLowDynamicsLimit;
+		Position mLastMcmPosition;
+		vanetza::units::Velocity mLastMcmSpeed;
+		vanetza::units::Angle mLastMcmHeading;
+		omnetpp::SimTime mLastMcmTimestamp;
+		omnetpp::SimTime mLastLowMcmTimestamp;
 		vanetza::units::Angle mHeadingDelta;
 		vanetza::units::Length mPositionDelta;
 		vanetza::units::Velocity mSpeedDelta;
@@ -57,8 +57,7 @@ class McService : public ItsG5BaseService
 		bool mFixedRate;
 };
 
-vanetza::asn1::Cam createCooperativeAwarenessMessage(const VehicleDataProvider&, uint16_t genDeltaTime);
-void addLowFrequencyContainer(vanetza::asn1::Cam&, unsigned pathHistoryLength = 0);
+vanetza::asn1::Cam createManoeuvreCoordinationMessage(const VehicleDataProvider&, uint16_t genDeltaTime);
 
 } // namespace artery
 

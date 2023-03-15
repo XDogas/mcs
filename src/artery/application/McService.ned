@@ -4,11 +4,11 @@ package artery.application;
 simple McService like ItsG5Service
 {
     parameters:
-        @signal[CamReceived](type=CaObject);
-        @signal[CamSent](type=CaObject);
+        @signal[McmReceived](type=CaObject);
+        @signal[McmSent](type=CaObject);
 
-        @statistic[reception](source=CamReceived;record=vector(camStationId)?,vector(camGenerationDeltaTime)?);
-        @statistic[transmission](source=CamSent;record=vector(camStationId)?,vector(camGenerationDeltaTime)?);
+        @statistic[reception](source=McmReceived;record=vector(camStationId)?,vector(camGenerationDeltaTime)?);
+        @statistic[transmission](source=McmSent;record=vector(camStationId)?,vector(camGenerationDeltaTime)?);
 
         // evaluate DCC transmission interval restrictions
         bool withDccRestriction = default(true);
