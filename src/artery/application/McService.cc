@@ -212,7 +212,7 @@ vanetza::asn1::Cam createCooperativeAwarenessMessage(const VehicleDataProvider& 
 
 	ItsPduHeader_t& header = (*message).header;
 	header.protocolVersion = 2;
-	header.messageID = ItsPduHeader__messageID_cam;
+	header.messageID = ItsPduHeader__messageID_mcm;
 	header.stationID = vdp.station_id();
 	// if (header.stationID==157) { // 3º vehicle
 		// addSpecialVehicleContainer()
