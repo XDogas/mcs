@@ -174,7 +174,7 @@ void McService::sendMcm(const SimTime& T_now)
 
 	using namespace vanetza;
 	btp::DataRequestB request;
-	request.destination_port = btp::ports::CAM;
+	request.destination_port = btp::ports::MCM;
 	request.gn.its_aid = aid::CA;
 	request.gn.transport_type = geonet::TransportType::SHB;
 	request.gn.maximum_lifetime = geonet::Lifetime { geonet::Lifetime::Base::One_Second, 1 };
