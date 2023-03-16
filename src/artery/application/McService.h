@@ -5,7 +5,7 @@
 #include "artery/application/ItsG5BaseService.h"
 #include "artery/utility/Channel.h"
 #include "artery/utility/Geometry.h"
-#include <vanetza/asn1/cam.hpp>
+#include <vanetza/asn1/mcm.hpp>
 #include <vanetza/btp/data_interface.hpp>
 #include <vanetza/units/angle.hpp>
 #include <vanetza/units/velocity.hpp>
@@ -57,7 +57,7 @@ class McService : public ItsG5BaseService
 		bool mFixedRate;
 };
 
-vanetza::asn1::Cam createManoeuvreCoordinationMessage(const VehicleDataProvider&, uint16_t genDeltaTime);
+vanetza::asn1::Mcm createManoeuvreCoordinationMessage(const VehicleDataProvider&, uint16_t genDeltaTime);
 
 } // namespace artery
 

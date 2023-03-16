@@ -1,5 +1,5 @@
 
-#include "artery/application/CaObject.h"
+#include "artery/application/McObject.h"
 #include "artery/application/McService.h"
 #include "artery/application/Asn1PacketVisitor.h"
 #include "artery/application/MultiChannelPolicy.h"
@@ -12,7 +12,7 @@
 #include <vanetza/btp/ports.hpp>
 #include <vanetza/dcc/transmission.hpp>
 #include <vanetza/dcc/transmit_rate_control.hpp>
-#include <vanetza/facilities/cam_functions.hpp>
+#include <vanetza/facilities/cam_functions.hpp> // change
 #include <chrono>
 
 #include<iostream>
@@ -30,7 +30,6 @@ auto centimeter_per_second = vanetza::units::si::meter_per_second * boost::units
 
 static const simsignal_t scSignalMcmReceived = cComponent::registerSignal("McmReceived");
 static const simsignal_t scSignalMcmSent = cComponent::registerSignal("McmSent");
-static const auto scLowFrequencyContainerInterval = std::chrono::milliseconds(500);
 
 template<typename T, typename U>
 long round(const boost::units::quantity<T>& q, const U& u)
@@ -75,9 +74,6 @@ void McService::initialize()
 
 	// avoid unreasonable high elapsed time values for newly inserted vehicles
 	mLastMcmTimestamp = simTime();
-
-	// // first generated CAM shall include the low frequency container
-	// mLastLowMcmTimestamp = mLastMcmTimestamp - artery::simtime_cast(scLowFrequencyContainerInterval);
 
 	// generation rate boundaries
 	mGenMcmMin = par("minInterval");
@@ -164,10 +160,7 @@ void McService::sendMcm(const SimTime& T_now)
 	mLastMcmSpeed = mVehicleDataProvider->speed();
 	mLastMcmHeading = mVehicleDataProvider->heading();
 	mLastMcmTimestamp = T_now;
-	// if (T_now - mLastLowMcmTimestamp >= artery::simtime_cast(scLowFrequencyContainerInterval)) {
-	// 	addLowFrequencyContainer(mcm, par("pathHistoryLength"));
-	// 	mLastLowMcmTimestamp = T_now;
-	// }
+
     // 
 	cout << endl; // MCM print end
 	// 
