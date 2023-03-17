@@ -49,7 +49,6 @@ class McService : public ItsG5BaseService
 		vanetza::units::Velocity mLastMcmSpeed;
 		vanetza::units::Angle mLastMcmHeading;
 		omnetpp::SimTime mLastMcmTimestamp;
-		omnetpp::SimTime mLastLowMcmTimestamp;
 		vanetza::units::Angle mHeadingDelta;
 		vanetza::units::Length mPositionDelta;
 		vanetza::units::Velocity mSpeedDelta;
@@ -57,7 +56,7 @@ class McService : public ItsG5BaseService
 		bool mFixedRate;
 };
 
-vanetza::asn1::Mcm createManoeuvreCoordinationMessage(const VehicleDataProvider&, uint16_t genDeltaTime);
+vanetza::asn1::Mcm createManoeuvreCoordinationMessage(const VehicleDataProvider& vdp, uint16_t genDeltaTime, unsigned mcmTrajectoriesLength, unsigned intermediatePointsLength, unsigned longitudinalPositionsLength, unsigned longitudinalPositionsCoefficientsLength, unsigned lateralPositionsLength, unsigned lateralPositionsCoefficientsLength);
 
 } // namespace artery
 
