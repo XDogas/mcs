@@ -61,8 +61,8 @@ void McService::initialize()
 	mDccRestriction = par("withDccRestriction");
 	mFixedRate = par("fixedRate");
 
-	// look up primary channel for CA
-	mPrimaryChannel = getFacilities().get_const<MultiChannelPolicy>().primaryChannel(vanetza::aid::CA);
+	// look up primary channel for MC
+	mPrimaryChannel = getFacilities().get_const<MultiChannelPolicy>().primaryChannel(vanetza::aid::MC);
 }
 
 void McService::trigger()
@@ -162,8 +162,8 @@ SimTime McService::genMcmDcc()
 		throw cRuntimeError("No DCC TRC found for MC's primary channel %i", mPrimaryChannel);
 	}
 
-	static const vanetza::dcc::TransmissionLite ca_tx(vanetza::dcc::Profile::DP2, 0);
-	vanetza::Clock::duration interval = trc->interval(ca_tx);
+	static const vanetza::dcc::TransmissionLite mc_tx(vanetza::dcc::Profile::DP2, 0);
+	vanetza::Clock::duration interval = trc->interval(mc_tx);
 	SimTime dcc { std::chrono::duration_cast<std::chrono::milliseconds>(interval).count(), SIMTIME_MS };
 	return std::min(mGenMcmMax, std::max(mGenMcmMin, dcc));
 }
