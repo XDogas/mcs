@@ -23,11 +23,6 @@ namespace artery
 
 using namespace omnetpp;
 
-// auto microdegree = vanetza::units::degree * boost::units::si::micro;
-// auto decidegree = vanetza::units::degree * boost::units::si::deci;
-// auto degree_per_second = vanetza::units::degree / vanetza::units::si::second;
-auto centimeter_per_second = vanetza::units::si::meter_per_second * boost::units::si::centi;
-
 static const simsignal_t scSignalMcmReceived = cComponent::registerSignal("McmReceived");
 static const simsignal_t scSignalMcmSent = cComponent::registerSignal("McmSent");
 
@@ -237,7 +232,7 @@ vanetza::asn1::Mcm createManoeuvreCoordinationMessage(const VehicleDataProvider&
 				longitudinalPositionsCoefficientsLength = 6;
 			}
 			for (unsigned i = 1; i < longitudinalPositionsCoefficientsLength; ++i) {
-				double coefficient = i;
+				double* coefficient = (double*)i;
 				ASN_SEQUENCE_ADD(&polynom->coefficients, coefficient);
 			}
 			polynom->start = i; // INTEGER (0..2097151)
@@ -258,7 +253,7 @@ vanetza::asn1::Mcm createManoeuvreCoordinationMessage(const VehicleDataProvider&
 				lateralPositionsCoefficientsLength = 6;
 			}
 			for (unsigned i = 1; i < lateralPositionsCoefficientsLength; ++i) {
-				double coefficient = i;
+				double* coefficient = (double*)i;
 				ASN_SEQUENCE_ADD(&polynom->coefficients, coefficient);
 			}
 			polynom->start = i; // INTEGER (0..2097151)
