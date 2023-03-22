@@ -4,11 +4,11 @@ package artery.application;
 simple McService like ItsG5Service
 {
     parameters:
-        @signal[McmReceived](type=CaObject);
-        @signal[McmSent](type=CaObject);
+        @signal[McmReceived](type=McObject);
+        @signal[McmSent](type=McObject);
 
-        @statistic[reception](source=McmReceived;record=vector(camStationId)?,vector(camGenerationDeltaTime)?);
-        @statistic[transmission](source=McmSent;record=vector(camStationId)?,vector(camGenerationDeltaTime)?);
+        @statistic[reception](source=McmReceived;record=vector(mcmStationId)?,vector(mcmGenerationDeltaTime)?);
+        @statistic[transmission](source=McmSent;record=vector(mcmStationId)?,vector(mcmGenerationDeltaTime)?);
 
         // evaluate DCC transmission interval restrictions
         bool withDccRestriction = default(true);
@@ -20,13 +20,13 @@ simple McService like ItsG5Service
         // generate at fixed rate (using minInterval, optionally restricted by DCC)
         bool fixedRate = default(false);
 
-        // change in orientation triggering CAM generation (in degree)
+        // change in orientation triggering MCM generation (in degree)
         double headingDelta = default(4.0);
 
-        // change in position triggering CAM generation
+        // change in position triggering MCM generation
         double positionDelta @unit(m) = default(4.0m);
 
-        // change in speed triggering CAM generation (in meter/second)
+        // change in speed triggering MCM generation (in meter/second)
         double speedDelta @unit(mps) = default(0.5mps);
 
         // length of path history

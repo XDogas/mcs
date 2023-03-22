@@ -179,6 +179,7 @@ vanetza::asn1::Mcm createManoeuvreCoordinationMessage(const VehicleDataProvider&
 
 	ManueverCoordination_t& mcm = (*message).mcm;
 	mcm.generationDeltaTime = genDeltaTime * GenerationDeltaTime_oneMilliSec;
+	// mcm.mcmContainer.present = McmContainer_PR_NOTHING;
 	mcm.mcmContainer.present = McmContainer_PR_vehicleManoeuvreContainer;
 
 	VehicleManoeuvreContainer_t& vmc = mcm.mcmContainer.choice.vehicleManoeuvreContainer;
