@@ -216,8 +216,20 @@ vanetza::asn1::Mcm createManoeuvreCoordinationMessage(const VehicleDataProvider&
 		}
 		for (unsigned i = 1; i < intermediatePointsLength; ++i) {
 			IntermediatePoint* intermediatePoint = vanetza::asn1::allocate<IntermediatePoint>();
-			intermediatePoint->present = IntermediatePoint_PR_NOTHING;
-			// add intermidiatPoint here if selected in the line before
+			intermediatePoint->present = IntermediatePoint_PR_reference;
+			IntermediatePointReference_t& ipr2 = (IntermediatePointReference_t&)intermediatePoint->choice;
+			ipr2.referencePosition.latitude = Latitude_unavailable;
+			ipr2.referencePosition.longitude = Longitude_unavailable;
+			ipr2.referencePosition.positionConfidenceEllipse.semiMajorConfidence = SemiAxisLength_unavailable;
+			ipr2.referencePosition.positionConfidenceEllipse.semiMinorConfidence = SemiAxisLength_unavailable;
+			ipr2.referencePosition.positionConfidenceEllipse.semiMajorOrientation = HeadingValue_unavailable;
+			ipr2.referencePosition.altitude.altitudeValue = AltitudeValue_unavailable;
+			ipr2.referencePosition.altitude.altitudeConfidence = AltitudeConfidence_unavailable;
+			ipr2.referenceHeading.headingValue = HeadingValue_unavailable;
+			ipr2.referenceHeading.headingConfidence = HeadingConfidence_unavailable;
+			ipr2.lane.lanePosition = LanePosition_innerHardShoulder;
+			ipr2.lane.laneCount = 2; // Number of Lanes (INTEGER (1..16)), SUMO maybe knows
+			ipr2.timeOfPos = 0; // INT	EGER (0..65535), SUMO maybe knows
 			ASN_SEQUENCE_ADD(&mcmTrajectory->trajectory.intermediatePoints, intermediatePoint);
 		}
 		// mcmTrajectory->trajectory.longitudinalPositions (1..11) :
