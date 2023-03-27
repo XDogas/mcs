@@ -172,6 +172,114 @@ vanetza::asn1::Mcm createManoeuvreCoordinationMessage(const VehicleDataProvider&
 {
 	vanetza::asn1::Mcm message;
 
+	// ItsPduHeader_t& header = (*message).header;
+	// header.protocolVersion = 2;
+	// header.messageID = ItsPduHeader__messageID_mcm;
+	// header.stationID = vdp.station_id();
+
+	// ManueverCoordination_t& mcm = (*message).mcm;
+	// mcm.generationDeltaTime = genDeltaTime * GenerationDeltaTime_oneMilliSec;
+	// // mcm.mcmContainer.present = McmContainer_PR_NOTHING;
+	// mcm.mcmContainer.present = McmContainer_PR_vehicleManoeuvreContainer;
+
+	// VehicleManoeuvreContainer_t& vmc = mcm.mcmContainer.choice.vehicleManoeuvreContainer;
+	// // ManoeuvreAdviceContainer_t& mac = mcm.mcmContainer.choice.manoeuvreAdviceContainer; // other choice
+	// vmc.currentPoint.present = McmStartPoint_PR_intermediatePointReference;
+
+	// IntermediatePointReference_t& ipr = vmc.currentPoint.choice.intermediatePointReference;
+	// // IntermediatePointOffroad_t& ipo = vmc.currentPoint.choice.intermediatePointOffroad; // other choice
+	// ipr.referencePosition.latitude = Latitude_unavailable;
+	// ipr.referencePosition.longitude = Longitude_unavailable;
+	// ipr.referencePosition.positionConfidenceEllipse.semiMajorConfidence = SemiAxisLength_unavailable;
+	// ipr.referencePosition.positionConfidenceEllipse.semiMinorConfidence = SemiAxisLength_unavailable;
+	// ipr.referencePosition.positionConfidenceEllipse.semiMajorOrientation = HeadingValue_unavailable;
+	// ipr.referencePosition.altitude.altitudeValue = AltitudeValue_unavailable;
+	// ipr.referencePosition.altitude.altitudeConfidence = AltitudeConfidence_unavailable;
+	// ipr.referenceHeading.headingValue = HeadingValue_unavailable;
+	// ipr.referenceHeading.headingConfidence = HeadingConfidence_unavailable;
+	// ipr.lane.lanePosition = LanePosition_innerHardShoulder;
+	// ipr.lane.laneCount = 2; // Number of Lanes (INTEGER (1..16)), SUMO maybe knows
+	// ipr.timeOfPos = 0; // INT	EGER (0..65535), SUMO maybe knows
+
+	// // vmc.mcmTrajectories (1..16) :
+	// if (mcmTrajectoriesLength > 16) {
+	// 	EV_WARN << "mcmTrajectories can contain 16 elements at maximum";
+	// 	mcmTrajectoriesLength = 16;
+	// }
+	// for (unsigned i = 1; i < mcmTrajectoriesLength; ++i) {
+	// 	McmTrajectory* mcmTrajectory = vanetza::asn1::allocate<McmTrajectory>();
+	// 	mcmTrajectory->trajectoryID = i; // INTEGER (0..65535)
+	// 	// mcmTrajectory->trajectory :
+	// 	// mcmTrajectory->trajectory.intermediatePoints (1..10) :
+	// 	if (intermediatePointsLength > 10) {
+	// 		EV_WARN << "intermediatePoints can contain 10 elements at maximum";
+	// 		intermediatePointsLength = 10;
+	// 	}
+	// 	for (unsigned i = 1; i < intermediatePointsLength; ++i) {
+	// 		IntermediatePoint* intermediatePoint = vanetza::asn1::allocate<IntermediatePoint>();
+	// 		intermediatePoint->present = IntermediatePoint_PR_reference;
+	// 		IntermediatePointReference_t& ipr2 = intermediatePoint->choice.reference;
+	// 		ipr2.referencePosition.latitude = Latitude_unavailable;
+	// 		ipr2.referencePosition.longitude = Longitude_unavailable;
+	// 		ipr2.referencePosition.positionConfidenceEllipse.semiMajorConfidence = SemiAxisLength_unavailable;
+	// 		ipr2.referencePosition.positionConfidenceEllipse.semiMinorConfidence = SemiAxisLength_unavailable;
+	// 		ipr2.referencePosition.positionConfidenceEllipse.semiMajorOrientation = HeadingValue_unavailable;
+	// 		ipr2.referencePosition.altitude.altitudeValue = AltitudeValue_unavailable;
+	// 		ipr2.referencePosition.altitude.altitudeConfidence = AltitudeConfidence_unavailable;
+	// 		ipr2.referenceHeading.headingValue = HeadingValue_unavailable;
+	// 		ipr2.referenceHeading.headingConfidence = HeadingConfidence_unavailable;
+	// 		ipr2.lane.lanePosition = LanePosition_innerHardShoulder;
+	// 		ipr2.lane.laneCount = 2; // Number of Lanes (INTEGER (1..16)), SUMO maybe knows
+	// 		ipr2.timeOfPos = 0; // INT	EGER (0..65535), SUMO maybe knows
+	// 		ASN_SEQUENCE_ADD(&mcmTrajectory->trajectory.intermediatePoints, intermediatePoint);
+	// 	}
+	// 	// mcmTrajectory->trajectory.longitudinalPositions (1..11) :
+	// 	if (longitudinalPositionsLength > 11) {
+	// 		EV_WARN << "longitudinalPositions can contain 11 elements at maximum";
+	// 		longitudinalPositionsLength = 11;
+	// 	}
+	// 	for (unsigned i = 1; i < longitudinalPositionsLength; ++i) {
+	// 		Polynom* polynom = vanetza::asn1::allocate<Polynom>();
+	// 		// polynom->coefficients (1..6) :
+	// 		if (longitudinalPositionsCoefficientsLength > 6) {
+	// 			EV_WARN << "longitudinalPositionsCoefficientsLength can contain 6 elements at maximum";
+	// 			longitudinalPositionsCoefficientsLength = 6;
+	// 		}
+	// 		for (unsigned i = 1; i < longitudinalPositionsCoefficientsLength; ++i) {
+	// 			double* coefficient = (double*)i;
+	// 			ASN_SEQUENCE_ADD(&polynom->coefficients, coefficient);
+	// 		}
+	// 		polynom->start = i; // INTEGER (0..2097151)
+	// 		polynom->end = i; // INTEGER (0..2097151)
+	// 		polynom->xOffset = i; // INTEGER (-8000000..8000000)
+	// 		ASN_SEQUENCE_ADD(&mcmTrajectory->trajectory.longitudinalPositions, polynom);
+	// 	}
+	// 	// mcmTrajectory->trajectory.lateralPositions (1..11) :
+	// 	if (lateralPositionsLength > 11) {
+	// 		EV_WARN << "lateralPositions can contain 11 elements at maximum";
+	// 		lateralPositionsLength = 11;
+	// 	}
+	// 	for (unsigned i = 1; i < lateralPositionsLength; ++i) {
+	// 		Polynom* polynom = vanetza::asn1::allocate<Polynom>();
+	// 		// polynom->coefficients (1..6) :
+	// 		if (lateralPositionsCoefficientsLength > 6) {
+	// 			EV_WARN << "lateralPositionsCoefficientsLength can contain 6 elements at maximum";
+	// 			lateralPositionsCoefficientsLength = 6;
+	// 		}
+	// 		for (unsigned i = 1; i < lateralPositionsCoefficientsLength; ++i) {
+	// 			double* coefficient = (double*)i;
+	// 			ASN_SEQUENCE_ADD(&polynom->coefficients, coefficient);
+	// 		}
+	// 		polynom->start = i; // INTEGER (0..2097151)
+	// 		polynom->end = i; // INTEGER (0..2097151)
+	// 		polynom->xOffset = i; // INTEGER (-8000000..8000000)
+	// 		ASN_SEQUENCE_ADD(&mcmTrajectory->trajectory.lateralPositions, polynom);
+	// 	}
+	// 	mcmTrajectory->cost = CooperationCost_zero;
+	// 	ASN_SEQUENCE_ADD(&vmc.mcmTrajectories, mcmTrajectory);
+	// }
+
+	// again
 	ItsPduHeader_t& header = (*message).header;
 	header.protocolVersion = 2;
 	header.messageID = ItsPduHeader__messageID_mcm;
@@ -179,15 +287,12 @@ vanetza::asn1::Mcm createManoeuvreCoordinationMessage(const VehicleDataProvider&
 
 	ManueverCoordination_t& mcm = (*message).mcm;
 	mcm.generationDeltaTime = genDeltaTime * GenerationDeltaTime_oneMilliSec;
-	// mcm.mcmContainer.present = McmContainer_PR_NOTHING;
 	mcm.mcmContainer.present = McmContainer_PR_vehicleManoeuvreContainer;
 
 	VehicleManoeuvreContainer_t& vmc = mcm.mcmContainer.choice.vehicleManoeuvreContainer;
-	// ManoeuvreAdviceContainer_t& mac = mcm.mcmContainer.choice.manoeuvreAdviceContainer; // other choice
 	vmc.currentPoint.present = McmStartPoint_PR_intermediatePointReference;
 
 	IntermediatePointReference_t& ipr = vmc.currentPoint.choice.intermediatePointReference;
-	// IntermediatePointOffroad_t& ipo = vmc.currentPoint.choice.intermediatePointOffroad; // other choice
 	ipr.referencePosition.latitude = Latitude_unavailable;
 	ipr.referencePosition.longitude = Longitude_unavailable;
 	ipr.referencePosition.positionConfidenceEllipse.semiMajorConfidence = SemiAxisLength_unavailable;
@@ -198,26 +303,27 @@ vanetza::asn1::Mcm createManoeuvreCoordinationMessage(const VehicleDataProvider&
 	ipr.referenceHeading.headingValue = HeadingValue_unavailable;
 	ipr.referenceHeading.headingConfidence = HeadingConfidence_unavailable;
 	ipr.lane.lanePosition = LanePosition_innerHardShoulder;
-	ipr.lane.laneCount = 2; // Number of Lanes (INTEGER (1..16)), SUMO maybe knows
-	ipr.timeOfPos = 0; // INT	EGER (0..65535), SUMO maybe knows
+	ipr.lane.laneCount = 2;
+	ipr.timeOfPos = 1;
 
-	// vmc.mcmTrajectories (1..16) :
+	// vmc.mcmTrajectories (1..16)
 	if (mcmTrajectoriesLength > 16) {
 		EV_WARN << "mcmTrajectories can contain 16 elements at maximum";
 		mcmTrajectoriesLength = 16;
 	}
 	for (unsigned i = 1; i < mcmTrajectoriesLength; ++i) {
-		McmTrajectory* mcmTrajectory = vanetza::asn1::allocate<McmTrajectory>();
-		mcmTrajectory->trajectoryID = i; // INTEGER (0..65535)
-		// mcmTrajectory->trajectory.intermediatePoints (1..10) :
+		McmTrajectory* t = vanetza::asn1::allocate<McmTrajectory>();
+		t->trajectoryID = i;
+		// t->trajectory
+		// t->trajectory.intermediatePoints (1..10)
 		if (intermediatePointsLength > 10) {
 			EV_WARN << "intermediatePoints can contain 10 elements at maximum";
 			intermediatePointsLength = 10;
 		}
-		for (unsigned i = 1; i < intermediatePointsLength; ++i) {
-			IntermediatePoint* intermediatePoint = vanetza::asn1::allocate<IntermediatePoint>();
-			intermediatePoint->present = IntermediatePoint_PR_reference;
-			IntermediatePointReference_t& ipr2 = (IntermediatePointReference_t&)intermediatePoint->choice;
+		for (unsigned j = 1; j < intermediatePointsLength; j++) {
+			IntermediatePoint* ip = vanetza::asn1::allocate<IntermediatePoint>();
+			ip->present = IntermediatePoint_PR_reference;
+			IntermediatePointReference_t& ipr2 = ip->choice.reference;
 			ipr2.referencePosition.latitude = Latitude_unavailable;
 			ipr2.referencePosition.longitude = Longitude_unavailable;
 			ipr2.referencePosition.positionConfidenceEllipse.semiMajorConfidence = SemiAxisLength_unavailable;
@@ -228,55 +334,56 @@ vanetza::asn1::Mcm createManoeuvreCoordinationMessage(const VehicleDataProvider&
 			ipr2.referenceHeading.headingValue = HeadingValue_unavailable;
 			ipr2.referenceHeading.headingConfidence = HeadingConfidence_unavailable;
 			ipr2.lane.lanePosition = LanePosition_innerHardShoulder;
-			ipr2.lane.laneCount = 2; // Number of Lanes (INTEGER (1..16)), SUMO maybe knows
-			ipr2.timeOfPos = 0; // INT	EGER (0..65535), SUMO maybe knows
-			ASN_SEQUENCE_ADD(&mcmTrajectory->trajectory.intermediatePoints, intermediatePoint);
+			ipr2.lane.laneCount = 2;
+			ipr2.timeOfPos = j;
+			ASN_SEQUENCE_ADD(&t->trajectory.intermediatePoints, ip);
 		}
-		// mcmTrajectory->trajectory.longitudinalPositions (1..11) :
+		// t->trajectory.longitudinalPositions (1..11)
 		if (longitudinalPositionsLength > 11) {
 			EV_WARN << "longitudinalPositions can contain 11 elements at maximum";
 			longitudinalPositionsLength = 11;
 		}
-		for (unsigned i = 1; i < longitudinalPositionsLength; ++i) {
-			Polynom* polynom = vanetza::asn1::allocate<Polynom>();
-			// polynom->coefficients (1..6) :
+		for (unsigned j = 1; j < longitudinalPositionsLength; j++) {
+			Polynom* p = vanetza::asn1::allocate<Polynom>();
+			// p->coefficients (1..6)
 			if (longitudinalPositionsCoefficientsLength > 6) {
-				EV_WARN << "longitudinalPositionsCoefficientsLength can contain 6 elements at maximum";
+				EV_WARN << "longitudinalPositionsCoefficients can contain 6 elements at maximum";
 				longitudinalPositionsCoefficientsLength = 6;
 			}
-			for (unsigned i = 1; i < longitudinalPositionsCoefficientsLength; ++i) {
-				double* coefficient = (double*)i;
-				ASN_SEQUENCE_ADD(&polynom->coefficients, coefficient);
+			for (unsigned k = 1; k < longitudinalPositionsCoefficientsLength; k++) {
+				double* c = (double*)k;
+				ASN_SEQUENCE_ADD(&p->coefficients, c);
 			}
-			polynom->start = i; // INTEGER (0..2097151)
-			polynom->end = i; // INTEGER (0..2097151)
-			polynom->xOffset = i; // INTEGER (-8000000..8000000)
-			ASN_SEQUENCE_ADD(&mcmTrajectory->trajectory.longitudinalPositions, polynom);
+			p->start = j;
+			p->end = j+1;
+			p->xOffset = p->start - p->end;
+			ASN_SEQUENCE_ADD(&t->trajectory.longitudinalPositions, p);
 		}
-		// mcmTrajectory->trajectory.lateralPositions (1..11) :
+		// t->trajectory.lateralPositions (1..11)
 		if (lateralPositionsLength > 11) {
 			EV_WARN << "lateralPositions can contain 11 elements at maximum";
 			lateralPositionsLength = 11;
 		}
-		for (unsigned i = 1; i < lateralPositionsLength; ++i) {
-			Polynom* polynom = vanetza::asn1::allocate<Polynom>();
-			// polynom->coefficients (1..6) :
+		for (unsigned j = 1; j < lateralPositionsLength; j++) {
+			Polynom* p = vanetza::asn1::allocate<Polynom>();
+			// p->coefficients (1..6)
 			if (lateralPositionsCoefficientsLength > 6) {
-				EV_WARN << "lateralPositionsCoefficientsLength can contain 6 elements at maximum";
+				EV_WARN << "lateralPositionsCoefficients can contain 6 elements at maximum";
 				lateralPositionsCoefficientsLength = 6;
 			}
-			for (unsigned i = 1; i < lateralPositionsCoefficientsLength; ++i) {
-				double* coefficient = (double*)i;
-				ASN_SEQUENCE_ADD(&polynom->coefficients, coefficient);
+			for (unsigned k = 1; k < lateralPositionsCoefficientsLength; k++) {
+				double* c = (double*)k;
+				ASN_SEQUENCE_ADD(&p->coefficients, c);
 			}
-			polynom->start = i; // INTEGER (0..2097151)
-			polynom->end = i; // INTEGER (0..2097151)
-			polynom->xOffset = i; // INTEGER (-8000000..8000000)
-			ASN_SEQUENCE_ADD(&mcmTrajectory->trajectory.lateralPositions, polynom);
+			p->start = j;
+			p->end = j+1;
+			p->xOffset = p->start - p->end;
+			ASN_SEQUENCE_ADD(&t->trajectory.lateralPositions, p);
 		}
-		mcmTrajectory->cost = CooperationCost_zero;
-		ASN_SEQUENCE_ADD(&vmc.mcmTrajectories, mcmTrajectory);
+		t->cost = CooperationCost_zero;
+		ASN_SEQUENCE_ADD(&vmc.mcmTrajectories, t);
 	}
+	// 
 
 	std::string error;
 	if (!message.validate(error)) {
