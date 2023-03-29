@@ -127,7 +127,7 @@ bool McService::checkSpeedDelta() const
 void McService::sendMcm(const SimTime& T_now)
 {
 	uint16_t genDeltaTimeMod = countTaiMilliseconds(mTimer->getTimeFor(mVehicleDataProvider->updated()));
-	auto mcm = createManoeuvreCoordinationMessage(*mVehicleDataProvider, genDeltaTimeMod, 1, 0, 0, 0, 0, 0);
+	auto mcm = createManoeuvreCoordinationMessage(*mVehicleDataProvider, genDeltaTimeMod, 1, 1, 1, 1, 1, 1);
 
 	mLastMcmPosition = mVehicleDataProvider->position();
 	mLastMcmSpeed = mVehicleDataProvider->speed();
@@ -170,127 +170,28 @@ SimTime McService::genMcmDcc()
 
 vanetza::asn1::Mcm createManoeuvreCoordinationMessage(const VehicleDataProvider& vdp, uint16_t genDeltaTime, unsigned mcmTrajectoriesLength, unsigned intermediatePointsLength, unsigned longitudinalPositionsLength, unsigned longitudinalPositionsCoefficientsLength, unsigned lateralPositionsLength, unsigned lateralPositionsCoefficientsLength)
 {
+	cout << "MCM" << endl;
+	
 	vanetza::asn1::Mcm message;
 
-	// ItsPduHeader_t& header = (*message).header;
-	// header.protocolVersion = 2;
-	// header.messageID = ItsPduHeader__messageID_mcm;
-	// header.stationID = vdp.station_id();
-
-	// ManueverCoordination_t& mcm = (*message).mcm;
-	// mcm.generationDeltaTime = genDeltaTime * GenerationDeltaTime_oneMilliSec;
-	// // mcm.mcmContainer.present = McmContainer_PR_NOTHING;
-	// mcm.mcmContainer.present = McmContainer_PR_vehicleManoeuvreContainer;
-
-	// VehicleManoeuvreContainer_t& vmc = mcm.mcmContainer.choice.vehicleManoeuvreContainer;
-	// // ManoeuvreAdviceContainer_t& mac = mcm.mcmContainer.choice.manoeuvreAdviceContainer; // other choice
-	// vmc.currentPoint.present = McmStartPoint_PR_intermediatePointReference;
-
-	// IntermediatePointReference_t& ipr = vmc.currentPoint.choice.intermediatePointReference;
-	// // IntermediatePointOffroad_t& ipo = vmc.currentPoint.choice.intermediatePointOffroad; // other choice
-	// ipr.referencePosition.latitude = Latitude_unavailable;
-	// ipr.referencePosition.longitude = Longitude_unavailable;
-	// ipr.referencePosition.positionConfidenceEllipse.semiMajorConfidence = SemiAxisLength_unavailable;
-	// ipr.referencePosition.positionConfidenceEllipse.semiMinorConfidence = SemiAxisLength_unavailable;
-	// ipr.referencePosition.positionConfidenceEllipse.semiMajorOrientation = HeadingValue_unavailable;
-	// ipr.referencePosition.altitude.altitudeValue = AltitudeValue_unavailable;
-	// ipr.referencePosition.altitude.altitudeConfidence = AltitudeConfidence_unavailable;
-	// ipr.referenceHeading.headingValue = HeadingValue_unavailable;
-	// ipr.referenceHeading.headingConfidence = HeadingConfidence_unavailable;
-	// ipr.lane.lanePosition = LanePosition_innerHardShoulder;
-	// ipr.lane.laneCount = 2; // Number of Lanes (INTEGER (1..16)), SUMO maybe knows
-	// ipr.timeOfPos = 0; // INT	EGER (0..65535), SUMO maybe knows
-
-	// // vmc.mcmTrajectories (1..16) :
-	// if (mcmTrajectoriesLength > 16) {
-	// 	EV_WARN << "mcmTrajectories can contain 16 elements at maximum";
-	// 	mcmTrajectoriesLength = 16;
-	// }
-	// for (unsigned i = 1; i < mcmTrajectoriesLength; ++i) {
-	// 	McmTrajectory* mcmTrajectory = vanetza::asn1::allocate<McmTrajectory>();
-	// 	mcmTrajectory->trajectoryID = i; // INTEGER (0..65535)
-	// 	// mcmTrajectory->trajectory :
-	// 	// mcmTrajectory->trajectory.intermediatePoints (1..10) :
-	// 	if (intermediatePointsLength > 10) {
-	// 		EV_WARN << "intermediatePoints can contain 10 elements at maximum";
-	// 		intermediatePointsLength = 10;
-	// 	}
-	// 	for (unsigned i = 1; i < intermediatePointsLength; ++i) {
-	// 		IntermediatePoint* intermediatePoint = vanetza::asn1::allocate<IntermediatePoint>();
-	// 		intermediatePoint->present = IntermediatePoint_PR_reference;
-	// 		IntermediatePointReference_t& ipr2 = intermediatePoint->choice.reference;
-	// 		ipr2.referencePosition.latitude = Latitude_unavailable;
-	// 		ipr2.referencePosition.longitude = Longitude_unavailable;
-	// 		ipr2.referencePosition.positionConfidenceEllipse.semiMajorConfidence = SemiAxisLength_unavailable;
-	// 		ipr2.referencePosition.positionConfidenceEllipse.semiMinorConfidence = SemiAxisLength_unavailable;
-	// 		ipr2.referencePosition.positionConfidenceEllipse.semiMajorOrientation = HeadingValue_unavailable;
-	// 		ipr2.referencePosition.altitude.altitudeValue = AltitudeValue_unavailable;
-	// 		ipr2.referencePosition.altitude.altitudeConfidence = AltitudeConfidence_unavailable;
-	// 		ipr2.referenceHeading.headingValue = HeadingValue_unavailable;
-	// 		ipr2.referenceHeading.headingConfidence = HeadingConfidence_unavailable;
-	// 		ipr2.lane.lanePosition = LanePosition_innerHardShoulder;
-	// 		ipr2.lane.laneCount = 2; // Number of Lanes (INTEGER (1..16)), SUMO maybe knows
-	// 		ipr2.timeOfPos = 0; // INT	EGER (0..65535), SUMO maybe knows
-	// 		ASN_SEQUENCE_ADD(&mcmTrajectory->trajectory.intermediatePoints, intermediatePoint);
-	// 	}
-	// 	// mcmTrajectory->trajectory.longitudinalPositions (1..11) :
-	// 	if (longitudinalPositionsLength > 11) {
-	// 		EV_WARN << "longitudinalPositions can contain 11 elements at maximum";
-	// 		longitudinalPositionsLength = 11;
-	// 	}
-	// 	for (unsigned i = 1; i < longitudinalPositionsLength; ++i) {
-	// 		Polynom* polynom = vanetza::asn1::allocate<Polynom>();
-	// 		// polynom->coefficients (1..6) :
-	// 		if (longitudinalPositionsCoefficientsLength > 6) {
-	// 			EV_WARN << "longitudinalPositionsCoefficientsLength can contain 6 elements at maximum";
-	// 			longitudinalPositionsCoefficientsLength = 6;
-	// 		}
-	// 		for (unsigned i = 1; i < longitudinalPositionsCoefficientsLength; ++i) {
-	// 			double* coefficient = (double*)i;
-	// 			ASN_SEQUENCE_ADD(&polynom->coefficients, coefficient);
-	// 		}
-	// 		polynom->start = i; // INTEGER (0..2097151)
-	// 		polynom->end = i; // INTEGER (0..2097151)
-	// 		polynom->xOffset = i; // INTEGER (-8000000..8000000)
-	// 		ASN_SEQUENCE_ADD(&mcmTrajectory->trajectory.longitudinalPositions, polynom);
-	// 	}
-	// 	// mcmTrajectory->trajectory.lateralPositions (1..11) :
-	// 	if (lateralPositionsLength > 11) {
-	// 		EV_WARN << "lateralPositions can contain 11 elements at maximum";
-	// 		lateralPositionsLength = 11;
-	// 	}
-	// 	for (unsigned i = 1; i < lateralPositionsLength; ++i) {
-	// 		Polynom* polynom = vanetza::asn1::allocate<Polynom>();
-	// 		// polynom->coefficients (1..6) :
-	// 		if (lateralPositionsCoefficientsLength > 6) {
-	// 			EV_WARN << "lateralPositionsCoefficientsLength can contain 6 elements at maximum";
-	// 			lateralPositionsCoefficientsLength = 6;
-	// 		}
-	// 		for (unsigned i = 1; i < lateralPositionsCoefficientsLength; ++i) {
-	// 			double* coefficient = (double*)i;
-	// 			ASN_SEQUENCE_ADD(&polynom->coefficients, coefficient);
-	// 		}
-	// 		polynom->start = i; // INTEGER (0..2097151)
-	// 		polynom->end = i; // INTEGER (0..2097151)
-	// 		polynom->xOffset = i; // INTEGER (-8000000..8000000)
-	// 		ASN_SEQUENCE_ADD(&mcmTrajectory->trajectory.lateralPositions, polynom);
-	// 	}
-	// 	mcmTrajectory->cost = CooperationCost_zero;
-	// 	ASN_SEQUENCE_ADD(&vmc.mcmTrajectories, mcmTrajectory);
-	// }
-
-	// again
 	ItsPduHeader_t& header = (*message).header;
 	header.protocolVersion = 2;
 	header.messageID = ItsPduHeader__messageID_mcm;
 	header.stationID = vdp.station_id();
+	cout << "header.protocolVersion: " << header.protocolVersion << endl;
+	cout << "header.messageID: " << header.messageID << endl;
+	cout << "header.stationID: " << header.stationID << endl;
 
 	ManueverCoordination_t& mcm = (*message).mcm;
 	mcm.generationDeltaTime = genDeltaTime * GenerationDeltaTime_oneMilliSec;
 	mcm.mcmContainer.present = McmContainer_PR_vehicleManoeuvreContainer;
+	cout << "mcm.generationDeltaTime: " << mcm.generationDeltaTime << endl;
+	cout << "mcm.mcmContainer.present: " << mcm.mcmContainer.present << endl;
 
 	VehicleManoeuvreContainer_t& vmc = mcm.mcmContainer.choice.vehicleManoeuvreContainer;
 	vmc.currentPoint.present = McmStartPoint_PR_intermediatePointReference;
+	cout << "mcm.mcmContainer.vehicleManoeuvreContainer.currentPoint.present: " << vmc.currentPoint.present << endl;
+
 
 	IntermediatePointReference_t& ipr = vmc.currentPoint.choice.intermediatePointReference;
 	ipr.referencePosition.latitude = Latitude_unavailable;
@@ -303,117 +204,134 @@ vanetza::asn1::Mcm createManoeuvreCoordinationMessage(const VehicleDataProvider&
 	ipr.referenceHeading.headingValue = HeadingValue_unavailable;
 	ipr.referenceHeading.headingConfidence = HeadingConfidence_unavailable;
 	ipr.lane.lanePosition = LanePosition_innerHardShoulder;
-	ipr.lane.laneCount = 2;
-	ipr.timeOfPos = 1;
+	ipr.lane.laneCount = 2; // Number of Lanes (INTEGER (1..16))
+	ipr.timeOfPos = 1; // INTEGER (0..65535)
+	cout << "mcm.mcmContainer.vehicleManoeuvreContainer.currentPoint.intermediatePointReference.referencePosition.latitude: " << ipr.referencePosition.latitude << endl;
+	cout << "mcm.mcmContainer.vehicleManoeuvreContainer.currentPoint.intermediatePointReference.referencePosition.longitude: " << ipr.referencePosition.longitude << endl;
+	cout << "mcm.mcmContainer.vehicleManoeuvreContainer.currentPoint.intermediatePointReference.referencePosition.positionConfidenceEllipse.semiMajorConfidence: " << ipr.referencePosition.positionConfidenceEllipse.semiMajorConfidence << endl;
+	cout << "mcm.mcmContainer.vehicleManoeuvreContainer.currentPoint.intermediatePointReference.referencePosition.positionConfidenceEllipse.semiMinorConfidence: " << ipr.referencePosition.positionConfidenceEllipse.semiMinorConfidence << endl;
+	cout << "mcm.mcmContainer.vehicleManoeuvreContainer.currentPoint.intermediatePointReference.referencePosition.positionConfidenceEllipse.semiMajorOrientation: " << ipr.referencePosition.positionConfidenceEllipse.semiMajorOrientation << endl;
+	cout << "mcm.mcmContainer.vehicleManoeuvreContainer.currentPoint.intermediatePointReference.referencePosition.altitude.altitudeValue: " << ipr.referencePosition.altitude.altitudeValue << endl;
+	cout << "mcm.mcmContainer.vehicleManoeuvreContainer.currentPoint.intermediatePointReference.referencePosition.altitude.altitudeConfidence: " << ipr.referencePosition.altitude.altitudeConfidence << endl;
+	cout << "mcm.mcmContainer.vehicleManoeuvreContainer.currentPoint.intermediatePointReference.referenceHeading.headingValue: " << ipr.referenceHeading.headingValue << endl;
+	cout << "mcm.mcmContainer.vehicleManoeuvreContainer.currentPoint.intermediatePointReference.referenceHeading.headingConfidence: " << ipr.referenceHeading.headingConfidence << endl;
+	cout << "mcm.mcmContainer.vehicleManoeuvreContainer.currentPoint.intermediatePointReference.lane.lanePosition: " << ipr.lane.lanePosition << endl;
+	cout << "mcm.mcmContainer.vehicleManoeuvreContainer.currentPoint.intermediatePointReference.lane.laneCount: " << ipr.lane.laneCount << endl;
+	cout << "mcm.mcmContainer.vehicleManoeuvreContainer.currentPoint.intermediatePointReference.timeOfPos: " << ipr.timeOfPos << endl;
 
 	// vmc.mcmTrajectories (1..16)
 	if (mcmTrajectoriesLength > 16) {
 		EV_WARN << "mcmTrajectories can contain 16 elements at maximum";
+		cout << "mcmTrajectories can contain 16 elements at maximum" << endl;
 		mcmTrajectoriesLength = 16;
 	}
-	for (unsigned i = 1; i < mcmTrajectoriesLength; ++i) {
+	for (unsigned i = 0; i < mcmTrajectoriesLength; ++i) {
 		McmTrajectory* t = vanetza::asn1::allocate<McmTrajectory>();
-		t->trajectoryID = i;
+		t->trajectoryID = i; // INTEGER (0..65535)
+		cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectoryID: " << t->trajectoryID << endl;
 		// t->trajectory
 		// t->trajectory.intermediatePoints (1..10)
 		if (intermediatePointsLength > 10) {
 			EV_WARN << "intermediatePoints can contain 10 elements at maximum";
+			cout << "intermediatePoints can contain 10 elements at maximum" << endl;
 			intermediatePointsLength = 10;
 		}
-		for (unsigned j = 1; j < intermediatePointsLength; j++) {
+		for (unsigned j = 0; j < intermediatePointsLength; j++) {
 			IntermediatePoint* ip = vanetza::asn1::allocate<IntermediatePoint>();
 			ip->present = IntermediatePoint_PR_reference;
-			IntermediatePointReference_t& ipr2 = ip->choice.reference;
-			ipr2.referencePosition.latitude = Latitude_unavailable;
-			ipr2.referencePosition.longitude = Longitude_unavailable;
-			ipr2.referencePosition.positionConfidenceEllipse.semiMajorConfidence = SemiAxisLength_unavailable;
-			ipr2.referencePosition.positionConfidenceEllipse.semiMinorConfidence = SemiAxisLength_unavailable;
-			ipr2.referencePosition.positionConfidenceEllipse.semiMajorOrientation = HeadingValue_unavailable;
-			ipr2.referencePosition.altitude.altitudeValue = AltitudeValue_unavailable;
-			ipr2.referencePosition.altitude.altitudeConfidence = AltitudeConfidence_unavailable;
-			ipr2.referenceHeading.headingValue = HeadingValue_unavailable;
-			ipr2.referenceHeading.headingConfidence = HeadingConfidence_unavailable;
-			ipr2.lane.lanePosition = LanePosition_innerHardShoulder;
-			ipr2.lane.laneCount = 2;
-			ipr2.timeOfPos = j;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.intermediatePoints[" << j << "].present: " << ip->present << endl;
+			IntermediatePointReference_t& ref = ip->choice.reference;
+			ref.referencePosition.latitude = Latitude_unavailable;
+			ref.referencePosition.longitude = Longitude_unavailable;
+			ref.referencePosition.positionConfidenceEllipse.semiMajorConfidence = SemiAxisLength_unavailable;
+			ref.referencePosition.positionConfidenceEllipse.semiMinorConfidence = SemiAxisLength_unavailable;
+			ref.referencePosition.positionConfidenceEllipse.semiMajorOrientation = HeadingValue_unavailable;
+			ref.referencePosition.altitude.altitudeValue = AltitudeValue_unavailable;
+			ref.referencePosition.altitude.altitudeConfidence = AltitudeConfidence_unavailable;
+			ref.referenceHeading.headingValue = HeadingValue_unavailable;
+			ref.referenceHeading.headingConfidence = HeadingConfidence_unavailable;
+			ref.lane.lanePosition = LanePosition_innerHardShoulder;
+			ref.lane.laneCount = 2; // Number of Lanes (INTEGER (1..16))
+			ref.timeOfPos = j; // INTEGER (0..65535)
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.intermediatePoints[" << j << "].reference.referencePosition.latitude: " << ref.referencePosition.latitude << endl;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.intermediatePoints[" << j << "].reference.referencePosition.longitude: " << ref.referencePosition.longitude << endl;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.intermediatePoints[" << j << "].reference.referencePosition.positionConfidenceEllipse.semiMajorConfidence: " << ref.referencePosition.positionConfidenceEllipse.semiMajorConfidence << endl;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.intermediatePoints[" << j << "].reference.referencePosition.positionConfidenceEllipse.semiMinorConfidence: " << ref.referencePosition.positionConfidenceEllipse.semiMinorConfidence << endl;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.intermediatePoints[" << j << "].reference.referencePosition.positionConfidenceEllipse.semiMajorOrientation: " << ref.referencePosition.positionConfidenceEllipse.semiMajorOrientation << endl;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.intermediatePoints[" << j << "].reference.referencePosition.altitude.altitudeValue: " << ref.referencePosition.altitude.altitudeValue << endl;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.intermediatePoints[" << j << "].reference.referencePosition.altitude.altitudeConfidence: " << ref.referencePosition.altitude.altitudeConfidence << endl;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.intermediatePoints[" << j << "].reference.referenceHeading.headingValue: " << ref.referenceHeading.headingValue << endl;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.intermediatePoints[" << j << "].reference.referenceHeading.headingConfidence: " << ref.referenceHeading.headingConfidence << endl;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.intermediatePoints[" << j << "].reference.lane.lanePosition: " << ref.lane.lanePosition << endl;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.intermediatePoints[" << j << "].reference.lane.laneCount: " << ref.lane.laneCount << endl;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.intermediatePoints[" << j << "].reference.timeOfPos: " << ref.timeOfPos << endl;
 			ASN_SEQUENCE_ADD(&t->trajectory.intermediatePoints, ip);
 		}
 		// t->trajectory.longitudinalPositions (1..11)
 		if (longitudinalPositionsLength > 11) {
 			EV_WARN << "longitudinalPositions can contain 11 elements at maximum";
+			cout << "longitudinalPositions can contain 11 elements at maximum" << endl;
 			longitudinalPositionsLength = 11;
 		}
-		for (unsigned j = 1; j < longitudinalPositionsLength; j++) {
+		for (unsigned j = 0; j < longitudinalPositionsLength; j++) {
 			Polynom* p = vanetza::asn1::allocate<Polynom>();
 			// p->coefficients (1..6)
 			if (longitudinalPositionsCoefficientsLength > 6) {
 				EV_WARN << "longitudinalPositionsCoefficients can contain 6 elements at maximum";
+				cout << "longitudinalPositionsCoefficients can contain 6 elements at maximum" << endl;
 				longitudinalPositionsCoefficientsLength = 6;
 			}
-			for (unsigned k = 1; k < longitudinalPositionsCoefficientsLength; k++) {
-				double* c = (double*)k;
+			for (unsigned k = 0; k < longitudinalPositionsCoefficientsLength; k++) {
+				double* c = (double*)1;
+				cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.longitudinalPositions[" << j << "].coefficients[" << c << "]: " << c << endl;
 				ASN_SEQUENCE_ADD(&p->coefficients, c);
 			}
-			p->start = j;
-			p->end = j+1;
-			p->xOffset = p->start - p->end;
+			p->start = j; // INTEGER (0..2097151)
+			p->end = j+1; // INTEGER (0..2097151)
+			p->xOffset = p->start - p->end; // INTEGER (-8000000..8000000)
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.longitudinalPositions[" << j << "].start: " << p->start<< endl;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.longitudinalPositions[" << j << "].end: " << p->end << endl;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.longitudinalPositions[" << j << "].xOffset: " << p->xOffset << endl;
 			ASN_SEQUENCE_ADD(&t->trajectory.longitudinalPositions, p);
 		}
 		// t->trajectory.lateralPositions (1..11)
 		if (lateralPositionsLength > 11) {
 			EV_WARN << "lateralPositions can contain 11 elements at maximum";
+			cout << "lateralPositions can contain 11 elements at maximum" << endl;
 			lateralPositionsLength = 11;
 		}
-		for (unsigned j = 1; j < lateralPositionsLength; j++) {
+		for (unsigned j = 0; j < lateralPositionsLength; j++) {
 			Polynom* p = vanetza::asn1::allocate<Polynom>();
 			// p->coefficients (1..6)
 			if (lateralPositionsCoefficientsLength > 6) {
 				EV_WARN << "lateralPositionsCoefficients can contain 6 elements at maximum";
+				cout << "lateralPositionsCoefficients can contain 6 elements at maximum" << endl;
 				lateralPositionsCoefficientsLength = 6;
 			}
-			for (unsigned k = 1; k < lateralPositionsCoefficientsLength; k++) {
-				double* c = (double*)k;
+			for (unsigned k = 0; k < lateralPositionsCoefficientsLength; k++) {
+				double* c = (double*)1;
+				cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.lateralPositions[" << j << "].coefficients[" << c << "]: " << c << endl;
 				ASN_SEQUENCE_ADD(&p->coefficients, c);
 			}
-			p->start = j;
-			p->end = j+1;
+			p->start = j; // INTEGER (0..2097151)
+			p->end = j+1; // INTEGER (0..2097151)
 			p->xOffset = p->start - p->end;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.lateralPositions[" << j << "].start: " << p->start<< endl;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.lateralPositions[" << j << "].end: " << p->end << endl;
+			cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].trajectory.lateralPositions[" << j << "].xOffset: " << p->xOffset << endl;
 			ASN_SEQUENCE_ADD(&t->trajectory.lateralPositions, p);
 		}
 		t->cost = CooperationCost_zero;
+		cout << "mcm.mcmContainer.vehicleManoeuvreContainer.mcmTrajectories[" << i << "].cost: " << t->cost << endl;
 		ASN_SEQUENCE_ADD(&vmc.mcmTrajectories, t);
 	}
-	// 
 
 	std::string error;
 	if (!message.validate(error)) {
 		throw cRuntimeError("Invalid MCM: %s", error.c_str());
 	}
 
-    // MCM print
-	cout << "MCM" << endl;
-	cout << "header.protocolVersion: " << header.protocolVersion << endl;
-	cout << "header.messageID: " << header.messageID << endl;
-	cout << "header.stationID: " << header.stationID << endl;
-	cout << "mcm.generationDeltaTime: " << mcm.generationDeltaTime << endl;
-	cout << "mcm.mcmContainer.present: " << mcm.mcmContainer.present << endl;
-	cout << "vmc.currentPoint.present: " << vmc.currentPoint.present << endl;
-	cout << "ipr.referencePosition.latitude: " << ipr.referencePosition.latitude << endl;
-	cout << "ipr.referencePosition.longitude: " << ipr.referencePosition.longitude << endl;
-	cout << "ipr.referencePosition.positionConfidenceEllipse.semiMajorConfidence: " << ipr.referencePosition.positionConfidenceEllipse.semiMajorConfidence << endl;
-	cout << "ipr.referencePosition.positionConfidenceEllipse.semiMinorConfidence: " << ipr.referencePosition.positionConfidenceEllipse.semiMinorConfidence << endl;
-	cout << "ipr.referencePosition.positionConfidenceEllipse.semiMajorOrientation: " << ipr.referencePosition.positionConfidenceEllipse.semiMajorOrientation << endl;
-	cout << "ipr.referencePosition.altitude.altitudeValue: " << ipr.referencePosition.altitude.altitudeValue << endl;
-	cout << "ipr.referencePosition.altitude.altitudeConfidence: " << ipr.referencePosition.altitude.altitudeConfidence << endl;
-	cout << "ipr.referenceHeading.headingValue: " << ipr.referenceHeading.headingValue << endl;
-	cout << "ipr.referenceHeading.headingConfidence: " << ipr.referenceHeading.headingConfidence << endl;
-	cout << "ipr.lane.lanePosition: " << ipr.lane.lanePosition << endl;
-	cout << "ipr.lane.laneCount: " << ipr.lane.laneCount << endl;
-	cout << "ipr.timeOfPos: " << ipr.timeOfPos << endl;
-	// cout << "" <<  << endl;
-	// ...
 	cout << endl; 
-	// MCM print end
 
 	return message;
 }
