@@ -21,7 +21,7 @@
 
 <routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
     <vehicle id="0" depart="0.00">
-        <route edges="A1B1 B1B0 B0A0 A0A1 A1B1 B1C1 C1C0 C0B0 B0A0 A0A1 A1B1 B1C1 C1D1 D1D0 D0C0 C0B0 B0A0 A0A1" repeat="1000"/>
+        <route edges="A1B1 B1B0 B0A0 A0A1 A1B1 B1C1 C1C0 C0B0 B0A0 A0A1 A1B1 B1C1 C1D1 D1D0 D0C0 C0B0 B0A0 A0A1" repeat="100"/>
     </vehicle>
     <!-- <vehicle id="0" depart="0.00">
         <route edges="C0D0 D0D1 D1C1 C1B1 B1B0 B0A0 A0A1"/>
