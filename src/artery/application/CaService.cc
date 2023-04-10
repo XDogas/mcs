@@ -20,6 +20,9 @@
 #include <vanetza/facilities/cam_functions.hpp>
 #include <chrono>
 
+#include<iostream>
+using namespace std;
+
 namespace artery
 {
 
@@ -185,8 +188,17 @@ void CaService::sendCam(const SimTime& T_now)
 
 	using CamByteBuffer = convertible::byte_buffer_impl<asn1::Cam>;
 	std::unique_ptr<geonet::DownPacket> payload { new geonet::DownPacket() };
+	// 
+	cout << "payload size: " << payload->size() << endl;
+	// 
 	std::unique_ptr<convertible::byte_buffer> buffer { new CamByteBuffer(obj.shared_ptr()) };
+	// 
+	cout << "buffer size: " << buffer->size() << endl;
+	// 
 	payload->layer(OsiLayer::Application) = std::move(buffer);
+	// 
+	cout << "payload size after move: " << payload->size() << endl;
+	// 
 	this->request(request, std::move(payload));
 }
 
@@ -207,6 +219,8 @@ SimTime CaService::genCamDcc()
 
 vanetza::asn1::Cam createCooperativeAwarenessMessage(const VehicleDataProvider& vdp, uint16_t genDeltaTime)
 {
+	cout << "CAM" << endl;
+
 	vanetza::asn1::Cam message;
 
 	ItsPduHeader_t& header = (*message).header;
@@ -223,7 +237,9 @@ vanetza::asn1::Cam createCooperativeAwarenessMessage(const VehicleDataProvider& 
 	basic.referencePosition.altitude.altitudeValue = AltitudeValue_unavailable;
 	basic.referencePosition.altitude.altitudeConfidence = AltitudeConfidence_unavailable;
 	basic.referencePosition.longitude = round(vdp.longitude(), microdegree) * Longitude_oneMicrodegreeEast;
+	basic.referencePosition.longitude = Longitude_unavailable;
 	basic.referencePosition.latitude = round(vdp.latitude(), microdegree) * Latitude_oneMicrodegreeNorth;
+	basic.referencePosition.latitude = Latitude_unavailable;
 	basic.referencePosition.positionConfidenceEllipse.semiMajorOrientation = HeadingValue_unavailable;
 	basic.referencePosition.positionConfidenceEllipse.semiMajorConfidence =
 			SemiAxisLength_unavailable;
@@ -265,6 +281,8 @@ vanetza::asn1::Cam createCooperativeAwarenessMessage(const VehicleDataProvider& 
 	if (!message.validate(error)) {
 		throw cRuntimeError("Invalid High Frequency CAM: %s", error.c_str());
 	}
+
+	// cout << endl;
 
 	return message;
 }
