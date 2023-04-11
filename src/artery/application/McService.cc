@@ -148,18 +148,21 @@ void McService::sendMcm(const SimTime& T_now)
 
 	using McmByteBuffer = convertible::byte_buffer_impl<asn1::Mcm>;
 	std::unique_ptr<geonet::DownPacket> payload { new geonet::DownPacket() };
-	// 
+
 	cout << "payload size: " << payload->size() << endl;
-	// 
+
 	std::unique_ptr<convertible::byte_buffer> buffer { new McmByteBuffer(obj.shared_ptr()) };
-	// 
+
 	cout << "buffer size: " << buffer->size() << endl;
-	// 
+
 	payload->layer(OsiLayer::Application) = std::move(buffer);
-	// 
+
 	cout << "payload size after move: " << payload->size() << endl;
-	// 
+	cout << "before request" << endl;
+
 	this->request(request, std::move(payload));
+
+	cout << "after request" << endl;
 }
 
 SimTime McService::genMcmDcc()
