@@ -282,7 +282,7 @@ vanetza::asn1::Cam createCooperativeAwarenessMessage(const VehicleDataProvider& 
 		throw cRuntimeError("Invalid High Frequency CAM: %s", error.c_str());
 	}
 
-	// cout << endl;
+	vanetza::facilities::print_indented(cout, message);
 
 	return message;
 }
